@@ -5,8 +5,19 @@ class Program
 {
     static void Main(string[] args)
     {
-        TestCaseTest test = new TestCaseTest("testTemplateMethod");
-        test.Run();
+        TestCaseTest test_1 = new TestCaseTest("testTemplateMethod");
+        test_1.Run();
+
+        TestCaseTest test_2 = new TestCaseTest("testResult");
+        test_2.Run();
+    }
+}
+
+class TestResult
+{
+    public string summary()
+    {
+        return "1 run, 0 failed";
     }
 }
 
@@ -23,11 +34,15 @@ class TestCase
 
     protected virtual void tearDown() {}
 
-    public void Run()
+    public TestResult Run()
     {
+        TestResult result = new TestResult();
+
         setUp();
         GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
         tearDown();
+
+        return result;
     }
 
     protected void Assert(bool condition, string msg = "")
@@ -76,5 +91,12 @@ class TestCaseTest : TestCase
         WasRun test = new WasRun("testMethod");
         test.Run();
         Assert(test.log == "setUp testMethod tearDown ");
+    }
+
+    public void testResult()
+    {
+        WasRun test = new WasRun("testMethod");
+        TestResult result = test.Run();
+        Assert(result.summary() == "1 run, 0 failed");
     }
 }

@@ -28,7 +28,6 @@ class WasRun
     public void Run()
     {
         typeof(WasRun).InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
-        testMethod();
     }
 
     public void testMethod()

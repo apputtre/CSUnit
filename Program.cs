@@ -5,10 +5,9 @@ class Program
 {
     static void Main(string[] args)
     {
-        WasRun test = new WasRun("testMethod");
-        Console.WriteLine(test.wasRun);
+        TestCaseTest test = new TestCaseTest("testRunning");
+
         test.Run();
-        Console.WriteLine(test.wasRun);
     }
 }
 
@@ -39,5 +38,23 @@ class WasRun : TestCase
     public void testMethod()
     {
         wasRun = true;
+    }
+}
+
+class TestCaseTest : TestCase
+{
+    public TestCaseTest(string name) : base(name){}
+
+    public void testRunning()
+    {
+        WasRun test = new WasRun("testMethod");
+
+        if (test.wasRun)
+            throw new Exception("wasRun was true when it should be false");
+
+        test.Run();
+
+        if (!test.wasRun)
+            throw new Exception("wasRun was false when it should be true");
     }
 }

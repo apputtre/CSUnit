@@ -6,7 +6,7 @@ class Program
     {
         WasRun test = new WasRun("testMethod");
         Console.WriteLine(test.wasRun);
-        test.testMethod();
+        test.Run();
         Console.WriteLine(test.wasRun);
     }
 }
@@ -19,6 +19,11 @@ class WasRun
     public WasRun(string name)
     {
         wasRun = false;
+    }
+
+    public void Run()
+    {
+        testMethod();
     }
 
     public void testMethod()

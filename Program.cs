@@ -5,9 +5,11 @@ class Program
 {
     static void Main(string[] args)
     {
-        TestCaseTest test = new TestCaseTest("testRunning");
+        TestCaseTest test_running = new TestCaseTest("testRunning");
+        test_running.Run();
 
-        test.Run();
+        TestCaseTest test_setUp = new TestCaseTest("testSetUp");
+        test_setUp.Run();
     }
 }
 
@@ -20,8 +22,11 @@ class TestCase
         this.name = name;
     }
 
+    public virtual void setUp() {}
+
     public void Run()
     {
+        setUp();
         GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
     }
 
@@ -40,6 +45,7 @@ class TestCase
 class WasRun : TestCase
 {
     public bool wasRun;
+    public bool wasSetUp;
 
     public WasRun(string name) : base(name)
     {
@@ -49,6 +55,11 @@ class WasRun : TestCase
     public void testMethod()
     {
         wasRun = true;
+    }
+
+    public override void setUp()
+    {
+        wasSetUp = true;
     }
 }
 
@@ -65,5 +76,12 @@ class TestCaseTest : TestCase
         test.Run();
 
         Assert(test.wasRun, "wasRun was false when it should be true");
+    }
+
+    public void testSetUp()
+    {
+        WasRun test = new WasRun("testMethod");
+        test.Run();
+        Assert(test.wasSetUp, "setUp was not run");
     }
 }

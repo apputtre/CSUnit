@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Reflection;
+using System.Collections;
 
 class Program
 {
     static void Main(string[] args)
     {
-        TestCaseTest test_1 = new TestCaseTest("testTemplateMethod");
-        Console.WriteLine(test_1.Run().summary());
+        TestSuite suite = new TestSuite();
 
-        TestCaseTest test_2 = new TestCaseTest("testResult");
-        Console.WriteLine(test_2.Run().summary());
+        suite.add(new TestCaseTest("testTemplateMethod"));
+        suite.add(new TestCaseTest("testResult"));
+        suite.add(new TestCaseTest("testFailedResult"));
+        suite.add(new TestCaseTest("testFailedResultFormatting"));
+        suite.add(new TestCaseTest("testFailedSetUp"));
 
-        TestCaseTest test_3 = new TestCaseTest("testFailedResult");
-        Console.WriteLine(test_3.Run().summary());
-
-        TestCaseTest test_4 = new TestCaseTest("testFailedResultFormatting");
-        Console.WriteLine(test_4.Run().summary());
-
-        TestCaseTest test_5 = new TestCaseTest("testFailedSetUp");
-        Console.WriteLine(test_5.Run().summary());
+        TestResult result = new TestResult();
+        suite.run(result);
+        Console.WriteLine(result.summary());
     }
 }
 
@@ -56,10 +54,8 @@ class TestCase
 
     protected virtual void tearDown() {}
 
-    public TestResult Run()
+    public void Run(TestResult result)
     {
-        TestResult result = new TestResult();
-
         result.testStarted();
         try
         {
@@ -74,8 +70,6 @@ class TestCase
         {
             tearDown();
         }
-
-        return result;
     }
 
     protected void Assert(bool condition, string msg = "")
@@ -87,6 +81,22 @@ class TestCase
             else
                 throw new Exception("Assertion failed: " + msg);
         }
+    }
+}
+
+class TestSuite
+{
+    ArrayList tests = new ArrayList();
+
+    public void add(TestCase test)
+    {
+        tests.Add(test);
+    }
+
+    public void run(TestResult result)
+    {
+        foreach (TestCase test in tests)
+            test.Run(result);
     }
 }
 
@@ -137,21 +147,24 @@ class TestCaseTest : TestCase
     public void testTemplateMethod()
     {
         WasRun test = new WasRun("testMethod");
-        test.Run();
+        TestResult result = new TestResult();
+        test.Run(result);
         Assert(test.log == "setUp testMethod tearDown ");
     }
 
     public void testResult()
     {
         WasRun test = new WasRun("testMethod");
-        TestResult result = test.Run();
+        TestResult result = new TestResult();
+        test.Run(result);
         Assert(result.summary() == "1 run, 0 failed");
     }
 
     public void testFailedResult()
     {
         WasRun test = new WasRun("testBrokenMethod");
-        TestResult result = test.Run();
+        TestResult result = new TestResult();
+        test.Run(result);
         Assert(result.summary() == "1 run, 1 failed");
     }
 
@@ -166,7 +179,18 @@ class TestCaseTest : TestCase
     public void testFailedSetUp()
     {
         BrokenSetUp test = new BrokenSetUp("testMethod");
-        TestResult result = test.Run();
+        TestResult result = new TestResult();
+        test.Run(result);
         Assert(result.summary() == "1 run, 1 failed");
+    }
+
+    public void testSuite()
+    {
+        TestSuite suite = new TestSuite();
+        suite.add(new WasRun("testMethod"));
+        suite.add(new WasRun("testBrokenMethod"));
+        TestResult result = new TestResult();
+        suite.run(result);
+        Assert(result.summary() == "2 run, 0 failed");
     }
 }

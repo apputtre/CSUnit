@@ -21,10 +21,13 @@ class TestCase
 
     public virtual void setUp() {}
 
+    public virtual void tearDown() {}
+
     public void Run()
     {
         setUp();
         GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
+        tearDown();
     }
 
     protected void Assert(bool condition, string msg = "")
@@ -57,6 +60,11 @@ class WasRun : TestCase
     {
         log += "setUp ";
     }
+
+    public override void tearDown()
+    {
+        log += "tearDown ";
+    }
 }
 
 class TestCaseTest : TestCase
@@ -69,6 +77,6 @@ class TestCaseTest : TestCase
     {
         WasRun test = new WasRun("testMethod");
         test.Run();
-        Assert(test.log == "setUp testMethod ", "setUp was not run");
+        Assert(test.log == "setUp testMethod tearDown ");
     }
 }

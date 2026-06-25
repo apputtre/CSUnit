@@ -5,11 +5,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        TestCaseTest test_running = new TestCaseTest("testRunning");
-        test_running.Run();
-
-        TestCaseTest test_setUp = new TestCaseTest("testSetUp");
-        test_setUp.Run();
+        TestCaseTest test = new TestCaseTest("testTemplateMethod");
+        test.Run();
     }
 }
 
@@ -44,20 +41,21 @@ class TestCase
 
 class WasRun : TestCase
 {
-    public bool wasRun;
-    public bool wasSetUp;
+    public string log;
 
-    public WasRun(string name) : base(name) {}
+    public WasRun(string name) : base(name)
+    {
+        log = "";
+    }
 
     public void testMethod()
     {
-        wasRun = true;
+        log += "testMethod ";
     }
 
     public override void setUp()
     {
-        wasRun = false;
-        wasSetUp = true;
+        log += "setUp ";
     }
 }
 
@@ -65,30 +63,12 @@ class TestCaseTest : TestCase
 {
     public TestCaseTest(string name) : base(name){}
 
-    WasRun? test;
+    public override void setUp() {}
 
-    public override void setUp()
+    public void testTemplateMethod()
     {
-        test = new WasRun("testMethod");
-    }
-
-    public void testRunning()
-    {
-        if (test != null)
-            test.Run();
-        else
-            throw new Exception();
-
-        Assert(test.wasRun, "wasRun was false when it should be true");
-    }
-
-    public void testSetUp()
-    {
-        if (test != null)
-            test.Run();
-        else
-            throw new Exception();
-
-        Assert(test.wasSetUp, "setUp was not run");
+        WasRun test = new WasRun("testMethod");
+        test.Run();
+        Assert(test.log == "setUp testMethod ", "setUp was not run");
     }
 }

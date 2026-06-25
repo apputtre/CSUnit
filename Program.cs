@@ -24,6 +24,17 @@ class TestCase
     {
         GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
     }
+
+    protected void Assert(bool condition, string msg = "")
+    {
+        if (!condition)
+        {
+            if (msg == "")
+                throw new Exception("Assertion failed");
+            else
+                throw new Exception("Assertion failed: " + msg);
+        }
+    }
 }
 
 class WasRun : TestCase
@@ -49,12 +60,10 @@ class TestCaseTest : TestCase
     {
         WasRun test = new WasRun("testMethod");
 
-        if (test.wasRun)
-            throw new Exception("wasRun was true when it should be false");
+        Assert(!test.wasRun, "wasRun was true when it should be false");
 
         test.Run();
 
-        if (!test.wasRun)
-            throw new Exception("wasRun was false when it should be true");
+        Assert(test.wasRun, "wasRun was false when it should be true");
     }
 }

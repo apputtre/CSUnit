@@ -65,17 +65,30 @@ class TestCaseTest : TestCase
 {
     public TestCaseTest(string name) : base(name){}
 
+    WasRun? test;
+
+    public override void setUp()
+    {
+        test = new WasRun("testMethod");
+    }
+
     public void testRunning()
     {
-        WasRun test = new WasRun("testMethod");
-        test.Run();
+        if (test != null)
+            test.Run();
+        else
+            throw new Exception();
+
         Assert(test.wasRun, "wasRun was false when it should be true");
     }
 
     public void testSetUp()
     {
-        WasRun test = new WasRun("testMethod");
-        test.Run();
+        if (test != null)
+            test.Run();
+        else
+            throw new Exception();
+
         Assert(test.wasSetUp, "setUp was not run");
     }
 }

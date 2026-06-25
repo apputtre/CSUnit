@@ -82,6 +82,11 @@ class WasRun : TestCase
         log += "testMethod ";
     }
 
+    public void testBrokenMethod()
+    {
+        throw new Exception();
+    }
+
     protected override void setUp()
     {
         log += "setUp ";
@@ -113,7 +118,7 @@ class TestCaseTest : TestCase
 
     public void testFailedResult()
     {
-        WasRun test = new WasRun("testMethod");
+        WasRun test = new WasRun("testBrokenMethod");
         TestResult result = test.Run();
         Assert(result.summary() == "1 run, 1 failed");
     }

@@ -12,22 +12,28 @@ class Program
     }
 }
 
-
-class WasRun
+class TestCase
 {
-    public bool wasRun;
+    protected string name;
 
-    private string name;
-
-    public WasRun(string name)
+    public TestCase(string name)
     {
-        wasRun = false;
         this.name = name;
     }
 
     public void Run()
     {
         typeof(WasRun).InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
+    }
+}
+
+class WasRun : TestCase
+{
+    public bool wasRun;
+
+    public WasRun(string name) : base(name)
+    {
+        wasRun = false;
     }
 
     public void testMethod()

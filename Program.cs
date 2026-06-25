@@ -6,13 +6,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        TestSuite suite = new TestSuite();
-
-        suite.Add(new TestCaseTest("TestTemplateMethod"));
-        suite.Add(new TestCaseTest("TestResult"));
-        suite.Add(new TestCaseTest("TestFailedResult"));
-        suite.Add(new TestCaseTest("TestFailedResultFormatting"));
-        suite.Add(new TestCaseTest("TestFailedSetUp"));
+        TestSuite suite = new TestSuite(typeof(TestCaseTest));
 
         TestResult result = new TestResult();
         suite.Run(result);
@@ -22,22 +16,22 @@ class Program
 
 class TestResult
 {
-    private int runCount = 0;
-    private int errorCount = 0;
+    public int RunCount {get; private set;} = 0;
+    public int ErrorCount {get; private set;} = 0;
 
     public void TestStarted()
     {
-        ++runCount;
+        ++RunCount;
     }
 
     public void TestFailed()
     {
-        ++errorCount;
+        ++ErrorCount;
     }
 
     public string Summary()
     {
-        return $"{runCount} run, {errorCount} failed";
+        return $"{RunCount} run, {ErrorCount} failed";
     }
 }
 
@@ -87,6 +81,17 @@ class TestCase
 class TestSuite
 {
     ArrayList tests = new ArrayList();
+
+    public TestSuite() {}
+
+    public TestSuite(Type test)
+    {
+        foreach (MethodInfo method in test.GetMethods(BindingFlags.Instance | BindingFlags.Public))
+        {
+            if (method.Name.StartsWith("Test"))
+                Add((TestCase) Activator.CreateInstance(test, method.Name));
+        }
+    }
 
     public void Add(TestCase test)
     {
@@ -198,6 +203,6 @@ class TestCaseTest : TestCase
         suite.Add(new WasRun("TestMethod"));
         suite.Add(new WasRun("TestBrokenMethod"));
         suite.Run(result);
-        Assert(result.Summary() == "2 run, 0 failed");
+        Assert(result.Summary() == $"2 run, 1 failed");
     }
 }

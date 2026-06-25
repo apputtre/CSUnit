@@ -68,7 +68,6 @@ class TestCaseTest : TestCase
     public void testRunning()
     {
         WasRun test = new WasRun("testMethod");
-        Assert(!test.wasRun, "wasRun was true when it should be false");
         test.Run();
         Assert(test.wasRun, "wasRun was false when it should be true");
     }

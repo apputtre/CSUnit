@@ -19,9 +19,9 @@ class TestCase
         this.name = name;
     }
 
-    public virtual void setUp() {}
+    protected virtual void setUp() {}
 
-    public virtual void tearDown() {}
+    protected virtual void tearDown() {}
 
     public void Run()
     {
@@ -56,12 +56,12 @@ class WasRun : TestCase
         log += "testMethod ";
     }
 
-    public override void setUp()
+    protected override void setUp()
     {
         log += "setUp ";
     }
 
-    public override void tearDown()
+    protected override void tearDown()
     {
         log += "tearDown ";
     }
@@ -70,8 +70,6 @@ class WasRun : TestCase
 class TestCaseTest : TestCase
 {
     public TestCaseTest(string name) : base(name){}
-
-    public override void setUp() {}
 
     public void testTemplateMethod()
     {

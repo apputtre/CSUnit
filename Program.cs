@@ -11,8 +11,8 @@ class Program
         TestCaseTest test_2 = new TestCaseTest("testResult");
         test_2.Run();
 
-        //TestCaseTest test_3 = new TestCaseTest("testFailedResult");
-        //test_3.Run();
+        TestCaseTest test_3 = new TestCaseTest("testFailedResult");
+        test_3.Run();
 
         TestCaseTest test_4 = new TestCaseTest("testFailedResultFormatting");
         test_4.Run();
@@ -59,7 +59,14 @@ class TestCase
 
         result.testStarted();
         setUp();
-        GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
+        try
+        {
+            GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
+        }
+        catch
+        {
+            result.testFailed();
+        }
         tearDown();
 
         return result;

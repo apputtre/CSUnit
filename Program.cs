@@ -8,15 +8,15 @@ class Program
     {
         TestSuite suite = new TestSuite();
 
-        suite.add(new TestCaseTest("testTemplateMethod"));
-        suite.add(new TestCaseTest("testResult"));
-        suite.add(new TestCaseTest("testFailedResult"));
-        suite.add(new TestCaseTest("testFailedResultFormatting"));
-        suite.add(new TestCaseTest("testFailedSetUp"));
+        suite.Add(new TestCaseTest("TestTemplateMethod"));
+        suite.Add(new TestCaseTest("TestResult"));
+        suite.Add(new TestCaseTest("TestFailedResult"));
+        suite.Add(new TestCaseTest("TestFailedResultFormatting"));
+        suite.Add(new TestCaseTest("TestFailedSetUp"));
 
         TestResult result = new TestResult();
-        suite.run(result);
-        Console.WriteLine(result.summary());
+        suite.Run(result);
+        Console.WriteLine(result.Summary());
     }
 }
 
@@ -25,17 +25,17 @@ class TestResult
     private int runCount = 0;
     private int errorCount = 0;
 
-    public void testStarted()
+    public void TestStarted()
     {
         ++runCount;
     }
 
-    public void testFailed()
+    public void TestFailed()
     {
         ++errorCount;
     }
 
-    public string summary()
+    public string Summary()
     {
         return $"{runCount} run, {errorCount} failed";
     }
@@ -50,25 +50,25 @@ class TestCase
         this.name = name;
     }
 
-    protected virtual void setUp() {}
+    protected virtual void SetUp() {}
 
-    protected virtual void tearDown() {}
+    protected virtual void TearDown() {}
 
     public void Run(TestResult result)
     {
-        result.testStarted();
+        result.TestStarted();
         try
         {
-            setUp();
+            SetUp();
             GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
         }
         catch
         {
-            result.testFailed();
+            result.TestFailed();
         }
         finally
         {
-            tearDown();
+            TearDown();
         }
     }
 
@@ -88,12 +88,12 @@ class TestSuite
 {
     ArrayList tests = new ArrayList();
 
-    public void add(TestCase test)
+    public void Add(TestCase test)
     {
         tests.Add(test);
     }
 
-    public void run(TestResult result)
+    public void Run(TestResult result)
     {
         foreach (TestCase test in tests)
             test.Run(result);
@@ -109,22 +109,22 @@ class WasRun : TestCase
         log = "";
     }
 
-    public void testMethod()
+    public void TestMethod()
     {
         log += "testMethod ";
     }
 
-    public void testBrokenMethod()
+    public void TestBrokenMethod()
     {
         throw new Exception();
     }
 
-    protected override void setUp()
+    protected override void SetUp()
     {
         log += "setUp ";
     }
 
-    protected override void tearDown()
+    protected override void TearDown()
     {
         log += "tearDown ";
     }
@@ -134,7 +134,7 @@ class BrokenSetUp : WasRun
 {
     public BrokenSetUp(string name) : base(name) {}
 
-    protected override void setUp()
+    protected override void SetUp()
     {
         throw new Exception();
     }
@@ -144,53 +144,53 @@ class TestCaseTest : TestCase
 {
     public TestCaseTest(string name) : base(name){}
 
-    public void testTemplateMethod()
+    public void TestTemplateMethod()
     {
-        WasRun test = new WasRun("testMethod");
+        WasRun test = new WasRun("TestMethod");
         TestResult result = new TestResult();
         test.Run(result);
         Assert(test.log == "setUp testMethod tearDown ");
     }
 
-    public void testResult()
+    public void TestResult()
     {
-        WasRun test = new WasRun("testMethod");
+        WasRun test = new WasRun("TestMethod");
         TestResult result = new TestResult();
         test.Run(result);
-        Assert(result.summary() == "1 run, 0 failed");
+        Assert(result.Summary() == "1 run, 0 failed");
     }
 
-    public void testFailedResult()
+    public void TestFailedResult()
     {
-        WasRun test = new WasRun("testBrokenMethod");
+        WasRun test = new WasRun("TestBrokenMethod");
         TestResult result = new TestResult();
         test.Run(result);
-        Assert(result.summary() == "1 run, 1 failed");
+        Assert(result.Summary() == "1 run, 1 failed");
     }
 
-    public void testFailedResultFormatting()
+    public void TestFailedResultFormatting()
     {
         TestResult result = new TestResult();
-        result.testStarted();
-        result.testFailed();
-        Assert(result.summary() == "1 run, 1 failed");
+        result.TestStarted();
+        result.TestFailed();
+        Assert(result.Summary() == "1 run, 1 failed");
     }
 
-    public void testFailedSetUp()
+    public void TestFailedSetUp()
     {
-        BrokenSetUp test = new BrokenSetUp("testMethod");
+        BrokenSetUp test = new BrokenSetUp("TestMethod");
         TestResult result = new TestResult();
         test.Run(result);
-        Assert(result.summary() == "1 run, 1 failed");
+        Assert(result.Summary() == "1 run, 1 failed");
     }
 
-    public void testSuite()
+    public void TestSuite()
     {
         TestSuite suite = new TestSuite();
-        suite.add(new WasRun("testMethod"));
-        suite.add(new WasRun("testBrokenMethod"));
+        suite.Add(new WasRun("TestMethod"));
+        suite.Add(new WasRun("TestBrokenMethod"));
         TestResult result = new TestResult();
-        suite.run(result);
-        Assert(result.summary() == "2 run, 0 failed");
+        suite.Run(result);
+        Assert(result.Summary() == "2 run, 0 failed");
     }
 }

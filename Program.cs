@@ -11,23 +11,32 @@ class Program
         TestCaseTest test_2 = new TestCaseTest("testResult");
         test_2.Run();
 
-        TestCaseTest test_3 = new TestCaseTest("testFailedResult");
-        test_3.Run();
+        //TestCaseTest test_3 = new TestCaseTest("testFailedResult");
+        //test_3.Run();
+
+        TestCaseTest test_4 = new TestCaseTest("testFailedResultFormatting");
+        test_4.Run();
     }
 }
 
 class TestResult
 {
     private int runCount = 0;
+    private int errorCount = 0;
 
     public void testStarted()
     {
         ++runCount;
     }
 
+    public void testFailed()
+    {
+        ++errorCount;
+    }
+
     public string summary()
     {
-        return $"{runCount} run, 0 failed";
+        return $"{runCount} run, {errorCount} failed";
     }
 }
 
@@ -120,6 +129,14 @@ class TestCaseTest : TestCase
     {
         WasRun test = new WasRun("testBrokenMethod");
         TestResult result = test.Run();
+        Assert(result.summary() == "1 run, 1 failed");
+    }
+
+    public void testFailedResultFormatting()
+    {
+        TestResult result = new TestResult();
+        result.testStarted();
+        result.testFailed();
         Assert(result.summary() == "1 run, 1 failed");
     }
 }

@@ -23,7 +23,7 @@ class TestCase
 
     public void Run()
     {
-        typeof(WasRun).InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
+        GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
     }
 }
 

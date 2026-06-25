@@ -142,12 +142,23 @@ class BrokenSetUp : WasRun
 
 class TestCaseTest : TestCase
 {
-    public TestCaseTest(string name) : base(name){}
+    private TestResult result;
+
+    public TestCaseTest(string name) : base(name)
+    {
+        result = new TestResult();
+    }
+
+    protected override void SetUp()
+    {
+        result = new TestResult();
+
+        base.SetUp();
+    }
 
     public void TestTemplateMethod()
     {
         WasRun test = new WasRun("TestMethod");
-        TestResult result = new TestResult();
         test.Run(result);
         Assert(test.log == "setUp testMethod tearDown ");
     }
@@ -155,7 +166,6 @@ class TestCaseTest : TestCase
     public void TestResult()
     {
         WasRun test = new WasRun("TestMethod");
-        TestResult result = new TestResult();
         test.Run(result);
         Assert(result.Summary() == "1 run, 0 failed");
     }
@@ -163,14 +173,12 @@ class TestCaseTest : TestCase
     public void TestFailedResult()
     {
         WasRun test = new WasRun("TestBrokenMethod");
-        TestResult result = new TestResult();
         test.Run(result);
         Assert(result.Summary() == "1 run, 1 failed");
     }
 
     public void TestFailedResultFormatting()
     {
-        TestResult result = new TestResult();
         result.TestStarted();
         result.TestFailed();
         Assert(result.Summary() == "1 run, 1 failed");
@@ -179,7 +187,6 @@ class TestCaseTest : TestCase
     public void TestFailedSetUp()
     {
         BrokenSetUp test = new BrokenSetUp("TestMethod");
-        TestResult result = new TestResult();
         test.Run(result);
         Assert(result.Summary() == "1 run, 1 failed");
     }
@@ -189,7 +196,6 @@ class TestCaseTest : TestCase
         TestSuite suite = new TestSuite();
         suite.Add(new WasRun("TestMethod"));
         suite.Add(new WasRun("TestBrokenMethod"));
-        TestResult result = new TestResult();
         suite.Run(result);
         Assert(result.Summary() == "2 run, 0 failed");
     }

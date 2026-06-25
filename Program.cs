@@ -15,9 +15,16 @@ class Program
 
 class TestResult
 {
+    private int runCount = 0;
+
+    public void testStarted()
+    {
+        ++runCount;
+    }
+
     public string summary()
     {
-        return "1 run, 0 failed";
+        return $"{runCount} run, 0 failed";
     }
 }
 
@@ -38,6 +45,7 @@ class TestCase
     {
         TestResult result = new TestResult();
 
+        result.testStarted();
         setUp();
         GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
         tearDown();

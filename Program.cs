@@ -6,16 +6,19 @@ class Program
     static void Main(string[] args)
     {
         TestCaseTest test_1 = new TestCaseTest("testTemplateMethod");
-        test_1.Run();
+        Console.WriteLine(test_1.Run().summary());
 
         TestCaseTest test_2 = new TestCaseTest("testResult");
-        test_2.Run();
+        Console.WriteLine(test_2.Run().summary());
 
         TestCaseTest test_3 = new TestCaseTest("testFailedResult");
-        test_3.Run();
+        Console.WriteLine(test_3.Run().summary());
 
         TestCaseTest test_4 = new TestCaseTest("testFailedResultFormatting");
-        test_4.Run();
+        Console.WriteLine(test_4.Run().summary());
+
+        TestCaseTest test_5 = new TestCaseTest("testFailedSetUp");
+        Console.WriteLine(test_5.Run().summary());
     }
 }
 
@@ -58,16 +61,19 @@ class TestCase
         TestResult result = new TestResult();
 
         result.testStarted();
-        setUp();
         try
         {
+            setUp();
             GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
         }
         catch
         {
             result.testFailed();
         }
-        tearDown();
+        finally
+        {
+            tearDown();
+        }
 
         return result;
     }
@@ -114,6 +120,16 @@ class WasRun : TestCase
     }
 }
 
+class BrokenSetUp : WasRun
+{
+    public BrokenSetUp(string name) : base(name) {}
+
+    protected override void setUp()
+    {
+        throw new Exception();
+    }
+}
+
 class TestCaseTest : TestCase
 {
     public TestCaseTest(string name) : base(name){}
@@ -144,6 +160,13 @@ class TestCaseTest : TestCase
         TestResult result = new TestResult();
         result.testStarted();
         result.testFailed();
+        Assert(result.summary() == "1 run, 1 failed");
+    }
+
+    public void testFailedSetUp()
+    {
+        BrokenSetUp test = new BrokenSetUp("testMethod");
+        TestResult result = test.Run();
         Assert(result.summary() == "1 run, 1 failed");
     }
 }

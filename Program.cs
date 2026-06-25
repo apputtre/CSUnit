@@ -189,6 +189,7 @@ class TestCaseTest : TestCase
         BrokenSetUp test = new BrokenSetUp("TestMethod");
         test.Run(result);
         Assert(result.Summary() == "1 run, 1 failed");
+        Assert(test.log == "tearDown ");
     }
 
     public void TestSuite()

@@ -10,6 +10,9 @@ class Program
 
         TestCaseTest test_2 = new TestCaseTest("testResult");
         test_2.Run();
+
+        TestCaseTest test_3 = new TestCaseTest("testFailedResult");
+        test_3.Run();
     }
 }
 
@@ -106,5 +109,12 @@ class TestCaseTest : TestCase
         WasRun test = new WasRun("testMethod");
         TestResult result = test.Run();
         Assert(result.summary() == "1 run, 0 failed");
+    }
+
+    public void testFailedResult()
+    {
+        WasRun test = new WasRun("testMethod");
+        TestResult result = test.Run();
+        Assert(result.summary() == "1 run, 1 failed");
     }
 }

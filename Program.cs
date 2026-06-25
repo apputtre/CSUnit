@@ -47,10 +47,7 @@ class WasRun : TestCase
     public bool wasRun;
     public bool wasSetUp;
 
-    public WasRun(string name) : base(name)
-    {
-        wasRun = false;
-    }
+    public WasRun(string name) : base(name) {}
 
     public void testMethod()
     {
@@ -59,6 +56,7 @@ class WasRun : TestCase
 
     public override void setUp()
     {
+        wasRun = false;
         wasSetUp = true;
     }
 }
@@ -70,11 +68,8 @@ class TestCaseTest : TestCase
     public void testRunning()
     {
         WasRun test = new WasRun("testMethod");
-
         Assert(!test.wasRun, "wasRun was true when it should be false");
-
         test.Run();
-
         Assert(test.wasRun, "wasRun was false when it should be true");
     }
 

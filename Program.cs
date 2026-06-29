@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections;
+using System.Diagnostics;
 
 class Program
 {
@@ -14,10 +15,32 @@ class Program
     }
 }
 
+class AssertionFailed : Exception
+{
+    public string Test {get; private set;}
+    public string File {get; private set;}
+    public int Line {get; private set;}
+
+    public AssertionFailed(string test, string file, int line) : base("Assertion failed")
+    {
+        this.Test = test;
+        this.File = file;
+        this.Line = line;
+    }
+
+    public AssertionFailed(string test, string file, int line, string msg) : base($"Assertion failed: {msg}")
+    {
+        this.Test = test;
+        this.File = file;
+        this.Line = line;
+    }
+}
+
 class TestResult
 {
     public int RunCount {get; private set;} = 0;
     public int ErrorCount {get; private set;} = 0;
+    public string Log {get; set;} = "";
 
     public void TestStarted()
     {
@@ -30,6 +53,16 @@ class TestResult
     }
 
     public string Summary()
+    {
+        string summary = GetHeader();
+
+        if (Log != "")
+            summary += "\n\t" + Log;
+
+        return summary;
+    }
+
+    private string GetHeader()
     {
         return $"{RunCount} run, {ErrorCount} failed";
     }
@@ -51,14 +84,35 @@ class TestCase
     public void Run(TestResult result)
     {
         result.TestStarted();
+
         try
         {
             SetUp();
-            GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
         }
         catch
         {
             result.TestFailed();
+            TearDown();
+
+            throw;
+        }
+
+        try
+        {
+            GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, this, null);
+        }
+        catch (TargetInvocationException e)
+        {
+            result.TestFailed();
+
+            if (e.InnerException is AssertionFailed)
+            {
+                AssertionFailed f = e.InnerException as AssertionFailed;
+
+                result.Log += $"Test {name} failed: {f.Message} (file {f.File}, line {f.Line})\n\t";
+            }
+            else
+                throw e.InnerException;
         }
         finally
         {
@@ -70,10 +124,18 @@ class TestCase
     {
         if (!condition)
         {
+            string file;
+            int line;
+
+            StackTrace trace = new StackTrace(true);
+            StackFrame frame = trace.GetFrame(1);
+            file = frame.GetFileName();
+            line = frame.GetFileLineNumber();
+
             if (msg == "")
-                throw new Exception("Assertion failed");
+                throw new AssertionFailed(name, file, line);
             else
-                throw new Exception("Assertion failed: " + msg);
+                throw new AssertionFailed(name, file, line, msg);
         }
     }
 }
@@ -178,7 +240,19 @@ class TestCaseTest : TestCase
     public void TestFailedResult()
     {
         WasRun test = new WasRun("TestBrokenMethod");
-        test.Run(result);
+
+        bool exceptionThrown = false;
+
+        try
+        {
+            test.Run(result);
+        }
+        catch
+        {
+            exceptionThrown = true;
+        }
+
+        Assert(exceptionThrown == true);
         Assert(result.Summary() == "1 run, 1 failed");
     }
 
@@ -192,7 +266,19 @@ class TestCaseTest : TestCase
     public void TestFailedSetUp()
     {
         BrokenSetUp test = new BrokenSetUp("TestMethod");
-        test.Run(result);
+
+        bool exceptionThrown = false;
+
+        try
+        {
+            test.Run(result);
+        }
+        catch
+        {
+            exceptionThrown = true;
+        }
+
+        Assert(exceptionThrown == true);
         Assert(result.Summary() == "1 run, 1 failed");
         Assert(test.log == "tearDown ");
     }
@@ -202,7 +288,19 @@ class TestCaseTest : TestCase
         TestSuite suite = new TestSuite();
         suite.Add(new WasRun("TestMethod"));
         suite.Add(new WasRun("TestBrokenMethod"));
-        suite.Run(result);
+
+        bool exceptionThrown = false;
+
+        try
+        {
+            suite.Run(result);
+        }
+        catch
+        {
+            exceptionThrown = true;
+        }
+
+        Assert(exceptionThrown == true);
         Assert(result.Summary() == $"2 run, 1 failed");
     }
 }

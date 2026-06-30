@@ -1,34 +1,44 @@
 using System;
 using System.Collections;
 using System.Reflection;
+using System.Collections.Generic;
 
 class TestSuite
 {
-    ArrayList tests = new ArrayList();
+    List<TestCase> tests = new List<TestCase>();
+    List<List<string>> testNames = new List<List<string>>();
 
     public TestSuite() {}
-
-    public TestSuite(Type test)
-    {
-        foreach (MethodInfo method in test.GetMethods(BindingFlags.Instance | BindingFlags.Public))
-        {
-            if (method.Name.StartsWith("Test"))
-            {
-                object instance = Activator.CreateInstance(test, method.Name) ?? throw new Exception();
-
-                Add((TestCase) instance);
-            }
-        }
-    }
 
     public void Add(TestCase test)
     {
         tests.Add(test);
+        testNames.Add(new List<string>());
+    }
+
+    public void Add(TestCase test, string name)
+    {
+        tests.Add(test);
+        testNames.Add(new List<string>() { name });
+    }
+
+    public void Add(TestCase test, List<string> names)
+    {
+        tests.Add(test);
+        testNames.Add(names);
     }
 
     public void Run(TestResult result)
     {
-        foreach (TestCase test in tests)
-            test.Run(result);
+        for (int i = 0; i < tests.Count; ++i)
+        {
+            if (testNames[i].Count == 0)
+                tests[i].Run(result);
+            else
+            {
+                foreach (string name in testNames[i])
+                    tests[i].Run(result, name);
+            }
+        }
     }
 }

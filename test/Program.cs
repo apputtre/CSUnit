@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Reflection;
-using System.Collections;
+using System.Collections.Generic;
 
 class Test 
 {
     static void Main(string[] args)
     {
-        TestSuite suite = new TestSuite(typeof(TestCaseTest));
+        TestSuite suite = new TestSuite();
+        suite.Add(new TestCaseTest());
 
         TestResult result = new TestResult();
         suite.Run(result);
@@ -18,7 +19,7 @@ class WasRun : TestCase
 {
     public string log;
 
-    public WasRun(string name) : base(name)
+    public WasRun()
     {
         log = "";
     }
@@ -46,7 +47,7 @@ class WasRun : TestCase
 
 class BrokenSetUp : WasRun
 {
-    public BrokenSetUp(string name) : base(name) {}
+    public BrokenSetUp() : base() {}
 
     protected override void SetUp()
     {
@@ -58,7 +59,7 @@ class TestCaseTest : TestCase
 {
     private TestResult result;
 
-    public TestCaseTest(string name) : base(name)
+    public TestCaseTest() : base()
     {
         result = new TestResult();
     }
@@ -72,27 +73,27 @@ class TestCaseTest : TestCase
 
     public void TestTemplateMethod()
     {
-        WasRun test = new WasRun("TestMethod");
-        test.Run(result);
+        WasRun test = new WasRun();
+        test.Run(result, "TestMethod");
         Assert(test.log == "setUp testMethod tearDown ");
     }
 
     public void TestResult()
     {
-        WasRun test = new WasRun("TestMethod");
-        test.Run(result);
+        WasRun test = new WasRun();
+        test.Run(result, "TestMethod");
         Assert(result.Summary() == "1 run, 0 failed");
     }
 
     public void TestFailedResult()
     {
-        WasRun test = new WasRun("TestBrokenMethod");
+        WasRun test = new WasRun();
 
         bool exceptionThrown = false;
 
         try
         {
-            test.Run(result);
+            test.Run(result, "TestBrokenMethod");
         }
         catch
         {
@@ -112,13 +113,13 @@ class TestCaseTest : TestCase
 
     public void TestFailedSetUp()
     {
-        BrokenSetUp test = new BrokenSetUp("TestMethod");
+        BrokenSetUp test = new BrokenSetUp();
 
         bool exceptionThrown = false;
 
         try
         {
-            test.Run(result);
+            test.Run(result, "TestMethod");
         }
         catch
         {
@@ -133,8 +134,8 @@ class TestCaseTest : TestCase
     public void TestSuite()
     {
         TestSuite suite = new TestSuite();
-        suite.Add(new WasRun("TestMethod"));
-        suite.Add(new WasRun("TestBrokenMethod"));
+
+        suite.Add(new WasRun(), new List<string>() { "TestMethod", "TestBrokenMethod" });
 
         bool exceptionThrown = false;
 
